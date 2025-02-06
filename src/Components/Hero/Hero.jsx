@@ -1,6 +1,6 @@
 export default function Hero() {
   return (
-    <section id="hero" className="bg-neutral-900 text-white min-h-[70vh] flex items-center relative overflow-hidden">
+    <section id="hero" className="bg-neutral-900 text-white min-h-[70vh] flex items-center relative overflow-hidden" >
       <div className="absolute inset-0 bg-gradient-to-r from-neutral-900 to-neutral-800 opacity-90"></div>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="grid md:grid-cols-2 gap-12 items-center">
@@ -40,14 +40,7 @@ export default function Hero() {
           </div>
         </div>
       </div>
-      <div className="absolute bottom-0 left-0 w-full">
-        <svg  viewBox="0 0 1440 74" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path
-            d="M0,32L60,42.7C120,53,240,75,360,74.7C480,75,600,53,720,42.7C840,32,960,32,1080,37.3C1200,43,1320,53,1380,58.7L1440,64L1440,74L1380,74C1320,74,1200,74,1080,74C960,74,840,74,720,74C600,74,480,74,360,74C240,74,120,74,60,74L0,74Z"
-            fill="white"
-          />
-        </svg>
-      </div>
+      
     </section>
   )
 }
