@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 
-export default function Demo() {
+export default function Demo({ref}) {
   const [file, setFile] = useState(null)
 
   const handleFileChange = (e) => {
@@ -13,7 +13,7 @@ export default function Demo() {
   }
 
   return (
-    <section id="demo" className="py-20 bg-neutral-100">
+    <section ref={ref} id="demo" className="py-20 bg-neutral-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16 animate__animated animate__fadeIn">
           <h2 className="text-4xl font-bold text-neutral-900 mb-4">Try Our Demo</h2>

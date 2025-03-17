@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react"
 import Chart from "chart.js/auto"
 
-export default function Visualization() {
+export default function Visualization({ref}) {
   const chartRef = useRef(null)
 
   useEffect(() => {
@@ -62,7 +62,7 @@ export default function Visualization() {
   }, [])
 
   return (
-    <section id="visualization" className="py-20 bg-neutral-100">
+    <section ref={ref} id="visualization" className="py-20 bg-neutral-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16 animate__animated animate__fadeIn">
           <h2 className="text-4xl font-bold text-neutral-900 mb-4">Emotion Recognition Visualization</h2>

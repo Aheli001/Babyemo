@@ -1,6 +1,6 @@
-export default function UseCases() {
+export default function UseCases({ref}) {
   return (
-    <section id="usecases" className="py-20 bg-white">
+    <section ref={ref} id="usecases" className="py-20 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16 animate__animated animate__fadeIn">
           <h2 className="text-4xl font-bold text-neutral-900 mb-4">How It Helps</h2>
@@ -73,12 +73,6 @@ export default function UseCases() {
               </div>
             </div>
           </div>
-        </div>
-
-        <div className="mt-16 text-center">
-          <button className="bg-gradient-to-r from-pink-400 to-purple-500 hover:from-pink-500 hover:to-purple-600 text-white font-semibold px-8 py-3 rounded-full transform transition hover:scale-105 animate__animated animate__pulse animate__infinite">
-            Start Your Free Trial
-          </button>
         </div>
       </div>
     </section>

@@ -2,9 +2,9 @@ export default function Footer() {
   return (
     <footer id="footer" className="bg-neutral-900 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+        {/* <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8"> */}
           {/* Company Info */}
-          <div className="space-y-4">
+          {/* <div className="space-y-4">
             <h3 className="text-2xl font-bold">BabyEmo</h3>
             <p className="text-neutral-400">Understanding your baby's emotions with advanced AI technology</p>
             <div className="flex space-x-4">
@@ -27,10 +27,10 @@ export default function Footer() {
                 </svg>
               </a>
             </div>
-          </div>
+          </div> */}
 
           {/* Quick Links */}
-          <div>
+          {/* <div>
             <h4 className="text-lg font-semibold mb-4">Quick Links</h4>
             <ul className="space-y-2">
               <li>
@@ -54,10 +54,10 @@ export default function Footer() {
                 </a>
               </li>
             </ul>
-          </div>
+          </div> */}
 
           {/* Legal */}
-          <div>
+          {/* <div>
             <h4 className="text-lg font-semibold mb-4">Legal</h4>
             <ul className="space-y-2">
               <li>
@@ -81,10 +81,10 @@ export default function Footer() {
                 </a>
               </li>
             </ul>
-          </div>
+          </div> */}
 
           {/* Newsletter */}
-          <div>
+          {/* <div>
             <h4 className="text-lg font-semibold mb-4">Stay Updated</h4>
             <p className="text-neutral-400 mb-4">Subscribe to our newsletter for the latest updates</p>
             <form className="space-y-2">
@@ -100,8 +100,8 @@ export default function Footer() {
                 Subscribe
               </button>
             </form>
-          </div>
-        </div>
+          </div> */}
+        {/* </div> */}
 
         <div className="border-t border-neutral-800 pt-8 mt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">

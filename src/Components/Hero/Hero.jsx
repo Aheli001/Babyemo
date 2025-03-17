@@ -1,6 +1,6 @@
-export default function Hero() {
+export default function Hero({ sectionRefs }) {
   return (
-    <section id="hero" className="bg-neutral-900 text-white min-h-[70vh] flex items-center relative overflow-hidden" >
+    <section ref={sectionRefs.hero} id="hero" className="bg-neutral-900 text-white min-h-[70vh] flex items-center relative overflow-hidden" >
       <div className="absolute inset-0 bg-gradient-to-r from-neutral-900 to-neutral-800 opacity-90"></div>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="grid md:grid-cols-2 gap-12 items-center">
@@ -13,7 +13,9 @@ export default function Hero() {
               real-time through facial expressions and sounds.
             </p>
             <div className="flex flex-wrap gap-4">
-              <button className="bg-gradient-to-r from-pink-400 to-purple-500 hover:from-pink-500 hover:to-purple-600 text-white font-semibold px-8 py-3 rounded-full transform transition hover:scale-105 animate__animated animate__pulse animate__infinite">
+              <button className="bg-gradient-to-r from-pink-400 to-purple-500 hover:from-pink-500 hover:to-purple-600 text-white font-semibold px-8 py-3 rounded-full transform transition hover:scale-105 animate__animated animate__pulse animate__infinite"
+                onClick={() => sectionRefs.demo.current?.scrollIntoView({ behavior: "smooth" })}
+              >
                 Try Demo Now
               </button>
               <button className="border-2 border-white hover:bg-white hover:text-neutral-900 text-white font-semibold px-8 py-3 rounded-full transition">
@@ -40,7 +42,7 @@ export default function Hero() {
           </div>
         </div>
       </div>
-      
+
     </section>
   )
 }

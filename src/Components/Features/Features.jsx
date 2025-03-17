@@ -1,6 +1,6 @@
-export default function Features() {
+export default function Features({ref}) {
   return (
-    <section id="features" className="py-20 bg-white">
+    <section ref={ref} id="features" className="py-20 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16 animate__animated animate__fadeIn">
           <h2 className="text-4xl font-bold text-neutral-900 mb-4">Key Features</h2>
@@ -80,11 +80,7 @@ export default function Features() {
           </div>
         </div>
 
-        <div className="mt-16 text-center">
-          <button className="bg-gradient-to-r from-pink-400 to-purple-500 hover:from-pink-500 hover:to-purple-600 text-white font-semibold px-8 py-3 rounded-full transform transition hover:scale-105 animate__animated animate__pulse animate__infinite">
-            Explore All Features
-          </button>
-        </div>
+        
       </div>
     </section>
   )
