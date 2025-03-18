@@ -2,15 +2,19 @@
 
 import { useState } from "react"
 
-export default function Demo({ref}) {
+export default function Demo({ ref }) {
   const [file, setFile] = useState(null)
+  const [preview, setPreview] = useState(null);
 
   const handleFileChange = (e) => {
-    const files = e.target.files
+    const files = e.target.files;
     if (files && files.length > 0) {
-      setFile(files[0])
+      const selectedFile = files[0];
+      setFile(selectedFile);
+      setPreview(URL.createObjectURL(selectedFile)); // Generate preview URL
     }
-  }
+  };
+
 
   return (
     <section ref={ref} id="demo" className="py-20 bg-neutral-100">
@@ -24,7 +28,7 @@ export default function Demo({ref}) {
           {/* Demo Interface */}
           <div className="bg-white p-8 rounded-2xl shadow-lg animate__animated animate__fadeInLeft">
             <div className="mb-6">
-              <h3 className="text-2xl font-semibold mb-4">Upload Image or Video</h3>
+              <h3 className="text-2xl font-semibold mb-4 text-black">Upload Image or Video</h3>
               <div className="border-2 border-dashed border-neutral-300 rounded-lg p-8 text-center hover:border-pink-400 transition-colors">
                 <input
                   type="file"
@@ -38,6 +42,19 @@ export default function Demo({ref}) {
                   <p className="text-neutral-600 mb-2">Drag and drop or click to upload</p>
                   <span className="text-sm text-neutral-500">Supported formats: JPG, PNG, MP4</span>
                 </label>
+                {preview && (
+                  <div className="mt-4">
+                    <img
+                      src={preview}
+                      alt="Preview"
+                      className="mx-auto w-32 h-32 object-cover rounded-lg shadow"
+                    />
+                  </div>
+                )}
+
+                <div className="mt-4 text-neutral-600">
+                  {file && file.name}
+                </div>
               </div>
             </div>
 
@@ -54,7 +71,7 @@ export default function Demo({ref}) {
 
           {/* Results Display */}
           <div className="bg-white p-8 rounded-2xl shadow-lg animate__animated animate__fadeInRight">
-            <h3 className="text-2xl font-semibold mb-6">Emotion Analysis</h3>
+            <h3 className="text-2xl font-semibold mb-6 text-black">Emotion Analysis</h3>
 
             <div className="mb-8">
               <div className="flex items-center justify-center h-48 bg-neutral-50 rounded-lg mb-6">

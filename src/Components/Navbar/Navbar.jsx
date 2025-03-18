@@ -2,8 +2,10 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import { logo } from "@/assets/logo/index"
 
 export default function Navbar({ sectionRefs }) {
+  console.log(logo.src) 
   const [isOpen, setIsOpen] = useState(false)
   const scrollToSection = (section) => {
     sectionRefs[section].current?.scrollIntoView({ behavior: "smooth" });
@@ -14,7 +16,8 @@ export default function Navbar({ sectionRefs }) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
-            <div className="flex-shrink-0 cursor-pointer" onClick={() => scrollToSection("hero")}>
+            <div className="flex-shrink-0 cursor-pointer flex items-center gap-1" onClick={() => scrollToSection("hero")}>
+              <img src={logo.src} alt="logo" height={30} width={30}/>
               <span className="text-2xl font-bold">BabyEmo</span>
             </div>
             <div className="hidden md:block">

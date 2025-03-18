@@ -72,7 +72,7 @@ export default function Visualization({ref}) {
         <div className="grid md:grid-cols-2 gap-12">
           {/* Emotion Timeline Chart */}
           <div className="bg-white p-8 rounded-2xl shadow-lg animate__animated animate__fadeInLeft">
-            <h3 className="text-2xl font-semibold mb-6">Daily Emotion Timeline</h3>
+            <h3 className="text-2xl font-semibold mb-6 text-black">Daily Emotion Timeline</h3>
             <div className="relative h-80">
               <canvas ref={chartRef} className="w-full h-full"></canvas>
             </div>
@@ -94,7 +94,7 @@ export default function Visualization({ref}) {
 
           {/* Emotion Heatmap */}
           <div className="bg-white p-8 rounded-2xl shadow-lg animate__animated animate__fadeInRight">
-            <h3 className="text-2xl font-semibold mb-6">Emotion Intensity Heatmap</h3>
+            <h3 className="text-2xl font-semibold mb-6 text-black">Emotion Intensity Heatmap</h3>
             <div className="relative h-80 bg-neutral-50 rounded-lg p-4">
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="relative w-48 h-48">
