@@ -100,7 +100,7 @@ export default function Demo({ ref }) {
 
             <div className="mb-6">
               <button className="w-full bg-gradient-to-r from-pink-400 to-purple-500 hover:from-pink-500 hover:to-purple-600 text-white font-semibold px-6 py-3 rounded-lg transform transition hover:scale-105" 
-                onClick={handleDetection}
+                // onClick={handleDetection}
               >
                 Start Detection
               </button>
