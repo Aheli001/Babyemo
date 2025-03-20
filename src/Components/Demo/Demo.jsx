@@ -1,10 +1,12 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { angry, disgust, fear, happy, neutral, sad, surprised } from "@/assets/emotions";
 
 export default function Demo({ ref }) {
   const [file, setFile] = useState(null)
   const [preview, setPreview] = useState(null);
+  const [currentEmotion, setCurrentEmotion] = useState("happy"); // Default emotion
 
   const handleFileChange = (e) => {
     const files = e.target.files;
@@ -15,6 +17,44 @@ export default function Demo({ ref }) {
     }
   };
 
+  // Emotion data with corresponding image and color
+  const emotions = {
+    happy: { image: happy, color: "pink-500", label: "Happiness", value: 75 },
+    neutral: { image: neutral, color: "purple-500", label: "Calmness", value: 80 },
+    surprised: { image: surprised, color: "blue-500", label: "Alertness", value: 85 },
+    sad: { image: sad, color: "blue-400", label: "Sadness", value: 70 },
+    fear: { image: fear, color: "indigo-400", label: "Fear", value: 60 },
+    angry: { image: angry, color: "red-500", label: "Anger", value: 55 },
+    disgust: { image: disgust, color: "green-500", label: "Disgust", value: 45 }
+  };
+
+  // Cycle through emotions for demo purposes
+  useEffect(() => {
+    const emotionKeys = Object.keys(emotions);
+    let currentIndex = 0;
+
+    const interval = setInterval(() => {
+      currentIndex = (currentIndex + 1) % emotionKeys.length;
+      setCurrentEmotion(emotionKeys[currentIndex]);
+    }, 3000); // Change every 3 seconds
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // Get descriptions for each emotion
+  const getEmotionDescription = (emotion) => {
+    const descriptions = {
+      happy: "Baby appears to be in a positive mood with high alertness levels. Recommended action: Perfect time for interactive play or learning activities.",
+      neutral: "Baby is calm and relaxed. Recommended action: Gentle activities or reading time would be appropriate.",
+      surprised: "Baby is highly alert and attentive. Recommended action: Introduce new toys or cognitive development activities.",
+      sad: "Baby appears to be unhappy. Recommended action: Comforting and soothing activities recommended.",
+      fear: "Baby appears to be afraid or anxious. Recommended action: Provide comfort and reassurance in a calm environment.",
+      angry: "Baby appears to be frustrated or upset. Recommended action: Identify and address the source of frustration, offer comfort.",
+      disgust: "Baby appears to be reacting negatively to something. Recommended action: Remove aversive stimulus and provide distraction."
+    };
+    
+    return descriptions[emotion] || "Analysis not available.";
+  };
 
   return (
     <section ref={ref} id="demo" className="py-20 bg-neutral-100">
@@ -59,7 +99,9 @@ export default function Demo({ ref }) {
             </div>
 
             <div className="mb-6">
-              <button className="w-full bg-gradient-to-r from-pink-400 to-purple-500 hover:from-pink-500 hover:to-purple-600 text-white font-semibold px-6 py-3 rounded-lg transform transition hover:scale-105">
+              <button className="w-full bg-gradient-to-r from-pink-400 to-purple-500 hover:from-pink-500 hover:to-purple-600 text-white font-semibold px-6 py-3 rounded-lg transform transition hover:scale-105" 
+                onClick={handleDetection}
+              >
                 Start Detection
               </button>
             </div>
@@ -74,52 +116,97 @@ export default function Demo({ ref }) {
             <h3 className="text-2xl font-semibold mb-6 text-black">Emotion Analysis</h3>
 
             <div className="mb-8">
-              <div className="flex items-center justify-center h-48 bg-neutral-50 rounded-lg mb-6">
-                <div className="text-6xl">👶</div>
+              <div className="flex justify-center items-end h-48 bg-neutral-50 rounded-lg mb-6">
+                <div
+                  className="w-100 h-[90%] transition-all duration-500 transform"
+                  style={{ animation: `pulse-${emotions[currentEmotion].color} 2s infinite` }}
+                >
+                  <div className="animate__animated animate__fadeIn animate__faster h-full">
+                    <img 
+                      src={emotions[currentEmotion].image.src} 
+                      alt={`${currentEmotion} emotion`}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                </div>
               </div>
 
               <div className="space-y-4">
-                <div>
-                  <div className="flex justify-between mb-1">
-                    <span className="text-neutral-700">Happiness</span>
-                    <span className="text-pink-500 font-semibold">75%</span>
+                {Object.keys(emotions).map(emotion => (
+                  <div key={emotion} className={`transition-opacity duration-500 ${currentEmotion === emotion ? 'opacity-100' : 'opacity-50'}`}>
+                    <div className="flex justify-between mb-1">
+                      <span className="text-neutral-700">{emotions[emotion].label}</span>
+                      <span className={`text-${emotions[emotion].color} ${currentEmotion === emotion ? 'font-bold' : ''}`}>
+                        {emotions[emotion].value}%
+                      </span>
+                    </div>
+                    <div className="w-full bg-neutral-200 rounded-full h-2">
+                      <div
+                        className={`bg-${emotions[emotion].color} h-2 rounded-full transition-all duration-1000`}
+                        style={{ 
+                          width: `${currentEmotion === emotion ? emotions[emotion].value : 20}%`,
+                          opacity: currentEmotion === emotion ? 1 : 0.5
+                        }}
+                      ></div>
+                    </div>
                   </div>
-                  <div className="w-full bg-neutral-200 rounded-full h-2">
-                    <div className="bg-pink-500 h-2 rounded-full" style={{ width: "75%" }}></div>
-                  </div>
-                </div>
-
-                <div>
-                  <div className="flex justify-between mb-1">
-                    <span className="text-neutral-700">Calmness</span>
-                    <span className="text-purple-500 font-semibold">60%</span>
-                  </div>
-                  <div className="w-full bg-neutral-200 rounded-full h-2">
-                    <div className="bg-purple-500 h-2 rounded-full" style={{ width: "60%" }}></div>
-                  </div>
-                </div>
-
-                <div>
-                  <div className="flex justify-between mb-1">
-                    <span className="text-neutral-700">Alertness</span>
-                    <span className="text-blue-500 font-semibold">85%</span>
-                  </div>
-                  <div className="w-full bg-neutral-200 rounded-full h-2">
-                    <div className="bg-blue-500 h-2 rounded-full" style={{ width: "85%" }}></div>
-                  </div>
-                </div>
+                ))}
               </div>
             </div>
 
             <div className="p-4 bg-neutral-50 rounded-lg">
-              <p className="text-neutral-700 text-sm">
-                <span className="font-semibold">Analysis:</span> Baby appears to be in a positive mood with high
-                alertness levels. Recommended action: Perfect time for interactive play or learning activities.
+              <p className="text-neutral-700 text-sm animate__animated animate__fadeIn">
+                <span className="font-semibold">Analysis:</span> {getEmotionDescription(currentEmotion)}
               </p>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Add keyframe animations for the pulsing effect */}
+      <style jsx>{`
+        @keyframes pulse-pink-500 {
+          0% { filter: drop-shadow(0 0 5px rgba(236, 72, 153, 0.1)); }
+          50% { filter: drop-shadow(0 0 15px rgba(236, 72, 153, 0.5)); }
+          100% { filter: drop-shadow(0 0 5px rgba(236, 72, 153, 0.1)); }
+        }
+        
+        @keyframes pulse-purple-500 {
+          0% { filter: drop-shadow(0 0 5px rgba(168, 85, 247, 0.1)); }
+          50% { filter: drop-shadow(0 0 15px rgba(168, 85, 247, 0.5)); }
+          100% { filter: drop-shadow(0 0 5px rgba(168, 85, 247, 0.1)); }
+        }
+        
+        @keyframes pulse-blue-500 {
+          0% { filter: drop-shadow(0 0 5px rgba(59, 130, 246, 0.1)); }
+          50% { filter: drop-shadow(0 0 15px rgba(59, 130, 246, 0.5)); }
+          100% { filter: drop-shadow(0 0 5px rgba(59, 130, 246, 0.1)); }
+        }
+        
+        @keyframes pulse-blue-400 {
+          0% { filter: drop-shadow(0 0 5px rgba(96, 165, 250, 0.1)); }
+          50% { filter: drop-shadow(0 0 15px rgba(96, 165, 250, 0.5)); }
+          100% { filter: drop-shadow(0 0 5px rgba(96, 165, 250, 0.1)); }
+        }
+        
+        @keyframes pulse-indigo-400 {
+          0% { filter: drop-shadow(0 0 5px rgba(129, 140, 248, 0.1)); }
+          50% { filter: drop-shadow(0 0 15px rgba(129, 140, 248, 0.5)); }
+          100% { filter: drop-shadow(0 0 5px rgba(129, 140, 248, 0.1)); }
+        }
+        
+        @keyframes pulse-red-500 {
+          0% { filter: drop-shadow(0 0 5px rgba(239, 68, 68, 0.1)); }
+          50% { filter: drop-shadow(0 0 15px rgba(239, 68, 68, 0.5)); }
+          100% { filter: drop-shadow(0 0 5px rgba(239, 68, 68, 0.1)); }
+        }
+        
+        @keyframes pulse-green-500 {
+          0% { filter: drop-shadow(0 0 5px rgba(34, 197, 94, 0.1)); }
+          50% { filter: drop-shadow(0 0 15px rgba(34, 197, 94, 0.5)); }
+          100% { filter: drop-shadow(0 0 5px rgba(34, 197, 94, 0.1)); }
+        }
+      `}</style>
     </section>
   )
 }

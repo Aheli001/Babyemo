@@ -5,7 +5,6 @@ import Link from "next/link"
 import { logo } from "@/assets/logo/index"
 
 export default function Navbar({ sectionRefs }) {
-  console.log(logo.src) 
   const [isOpen, setIsOpen] = useState(false)
   const scrollToSection = (section) => {
     sectionRefs[section].current?.scrollIntoView({ behavior: "smooth" });
