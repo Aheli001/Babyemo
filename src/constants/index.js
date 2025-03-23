@@ -1,0 +1,1 @@
+export const mainURL = 'http://192.168.0.105:5000';

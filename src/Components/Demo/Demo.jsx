@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react"
 import { angry, disgust, fear, happy, neutral, sad, surprised } from "@/assets/emotions";
+import { mainURL } from "@/constants";
+import axios from "axios";
 
 export default function Demo({ ref }) {
   const [file, setFile] = useState(null)
@@ -55,6 +57,26 @@ export default function Demo({ ref }) {
     
     return descriptions[emotion] || "Analysis not available.";
   };
+  
+  const handleDetection = async () => {
+    try {
+      const formData = new FormData();
+      formData.append("image", file); // Use file instead of preview
+
+      const response = await axios.post(`${mainURL}/predict`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      console.log("Prediction Response:", response.data);
+      return response.data;
+    } catch (error) {
+      console.error("Error uploading image:", error.response?.data || error);
+      throw error;
+    }
+  };
+  
 
   return (
     <section ref={ref} id="demo" className="py-20 bg-neutral-100">
@@ -100,7 +122,7 @@ export default function Demo({ ref }) {
 
             <div className="mb-6">
               <button className="w-full bg-gradient-to-r from-pink-400 to-purple-500 hover:from-pink-500 hover:to-purple-600 text-white font-semibold px-6 py-3 rounded-lg transform transition hover:scale-105" 
-                // onClick={handleDetection}
+                onClick={handleDetection}
               >
                 Start Detection
               </button>
