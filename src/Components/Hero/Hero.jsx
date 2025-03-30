@@ -2,7 +2,7 @@ export default function Hero({ sectionRefs }) {
   return (
     <section ref={sectionRefs.hero} id="hero" className="bg-neutral-900 text-white min-h-[70vh] flex items-center relative overflow-hidden" >
       <div className="absolute inset-0 bg-gradient-to-r from-neutral-900 to-neutral-800 opacity-90"></div>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pt-[5rem] pb-[2rem]">
         <div className="grid md:grid-cols-2 gap-12 items-center">
           <div className="animate__animated animate__fadeInLeft">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
