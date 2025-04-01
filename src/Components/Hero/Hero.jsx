@@ -18,9 +18,9 @@ export default function Hero({ sectionRefs }) {
               >
                 Try Demo Now
               </button>
-              <button className="border-2 border-white hover:bg-white hover:text-neutral-900 text-white font-semibold px-8 py-3 rounded-full transition">
+              {/* <button className="border-2 border-white hover:bg-white hover:text-neutral-900 text-white font-semibold px-8 py-3 rounded-full transition">
                 Learn More
-              </button>
+              </button> */}
             </div>
           </div>
           <div className="relative animate__animated animate__fadeInRight">
