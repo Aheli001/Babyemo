@@ -128,7 +128,7 @@ export default function Demo({ ref }) {
   const emotions = {
     happy: { image: happy, color: "pink-500", label: "Happiness" },
     neutral: { image: neutral, color: "purple-500", label: "Calmness" },
-    surprised: { image: surprised, color: "blue-500", label: "Alertness" },
+    surprise: { image: surprised, color: "blue-500", label: "Alertness" },
     sad: { image: sad, color: "blue-400", label: "Sadness" },
     fear: { image: fear, color: "indigo-400", label: "Fear" },
     angry: { image: angry, color: "red-500", label: "Anger" },
@@ -139,7 +139,7 @@ export default function Demo({ ref }) {
     const descriptions = {
       happy: "Baby appears to be in a positive mood with high alertness levels. Perfect time for play.",
       neutral: "Baby is calm and relaxed. Gentle activities or reading time would be appropriate.",
-      surprised: "Baby is highly alert and attentive. Introduce new toys or cognitive activities.",
+      surprise: "Baby is highly alert and attentive. Introduce new toys or cognitive activities.",
       sad: "Baby appears to be unhappy. Comforting and soothing activities recommended.",
       fear: "Baby appears to be afraid or anxious. Provide reassurance in a calm environment.",
       angry: "Baby appears frustrated or upset. Identify and address the source of frustration.",
@@ -501,7 +501,7 @@ export default function Demo({ ref }) {
                 <div className="w-full bg-neutral-100 rounded-full h-2.5 mb-6">
                   <div
                     className={`bg-${emotions[currentEmotion]?.color} h-2.5 rounded-full transition-all duration-500`}
-                    style={{ width: `${value * 100}%` }}
+                    style={{ width: `${value}%` }}
                   ></div>
                 </div>
 
