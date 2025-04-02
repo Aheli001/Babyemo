@@ -1,7 +1,10 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import Chart from "chart.js/auto"
+import axios from "axios"
+import { mainURL } from "@/constants"
+import { motion } from "framer-motion"
+import { Activity } from "lucide-react"
 
 // Simulated AI emotion recognition service
 // In a real implementation, you would import an actual AI client library
@@ -17,343 +20,221 @@ const emotionRecognitionService = {
         // Simulated face landmarks/heatmap data
         eyes: {
           left: { x: 0.25, y: 0.33, intensity: Math.random() },
-          right: { x: 0.75, y: 0.33, intensity: Math.random() }
+          right: { x: 0.75, y: 0.33, intensity: Math.random() },
         },
-        mouth: { x: 0.5, y: 0.75, width: 0.33, intensity: Math.random() }
-      }
+        mouth: { x: 0.5, y: 0.75, width: 0.33, intensity: Math.random() },
+      },
     }
-  }
+  },
 }
 
-export default function DynamicVisualization({ ref }) {
-  const chartRef = useRef(null)
+// Helper function to generate suggestions based on emotional state
+const generateSuggestions = (happy, calm, active) => {
+  const suggestions = []
+
+  // Happiness-based suggestions
+  if (happy < 50) {
+    suggestions.push("Try playing peek-a-boo or making funny faces to boost happiness")
+    suggestions.push("Play their favorite music or sing a cheerful song")
+  } else if (happy > 80) {
+    suggestions.push("Great job! Your baby is very happy. Continue what you're doing")
+    suggestions.push("Take photos or videos to capture this joyful moment")
+  }
+
+  // Calmness-based suggestions
+  if (calm < 50) {
+    suggestions.push("Try gentle rocking or swaying to soothe your baby")
+    suggestions.push("Speak in a soft, gentle voice and reduce environmental stimuli")
+    suggestions.push("Consider dimming the lights and playing white noise or lullabies")
+  } else if (calm > 80) {
+    suggestions.push("Your baby is very relaxed. This might be a good time for a nap")
+    suggestions.push("Maintain the peaceful environment you've created")
+  }
+
+  // Activity-based suggestions
+  if (active < 50) {
+    suggestions.push("Try introducing colorful toys or making interesting sounds to engage them")
+    suggestions.push("Gentle tickling or interactive play might increase engagement")
+  } else if (active > 80) {
+    suggestions.push("Your baby is very active. Provide safe space for movement and exploration")
+    suggestions.push("If it's close to nap time, consider calming activities to wind down")
+  }
+
+  // Combined state suggestions
+  if (happy > 70 && calm > 70) {
+    suggestions.push("Perfect balance of happiness and calmness. Ideal for learning activities")
+  }
+
+  if (happy < 50 && calm < 50) {
+    suggestions.push("Your baby might be uncomfortable or hungry. Check basic needs")
+    suggestions.push("Try a change of environment or activity")
+  }
+
+  // Return 2-3 random suggestions to avoid overwhelming the parent
+  return suggestions.sort(() => 0.5 - Math.random()).slice(0, 3)
+}
+
+export default function Visualization({ ref }) {
+  const [isRecording, setIsRecording] = useState(false)
+  const [currentEmotion, setCurrentEmotion] = useState("")
+  const [emotionProbability, setEmotionProbability] = useState(0)
+  const [stream, setStream] = useState(null)
+  const [isCameraReady, setCameraReady] = useState(false)
+  const [errorMessage, setErrorMessage] = useState("")
+
   const videoRef = useRef(null)
   const canvasRef = useRef(null)
   const heatmapRef = useRef(null)
-  const chartInstance = useRef(null)
-  
-  const [isRecording, setIsRecording] = useState(false)
+
   const [emotionData, setEmotionData] = useState({
     happy: [],
     calm: [],
-    active: []
+    active: [],
   })
-  const [currentTime, setCurrentTime] = useState(new Date())
+  const [currentTime, setCurrentTime] = useState(null)
   const [faceData, setFaceData] = useState(null)
+  const [suggestions, setSuggestions] = useState([])
 
-  // Initialize the chart
   useEffect(() => {
-    if (chartRef.current && !chartInstance.current) {
-      const ctx = chartRef.current.getContext("2d")
-      if (ctx) {
-        // Create time labels for the last 6 data points
-        const labels = Array(6).fill().map((_, i) => {
-          const d = new Date()
-          d.setMinutes(d.getMinutes() - (5-i))
-          return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-        })
-        
-        chartInstance.current = new Chart(ctx, {
-          type: "line",
-          data: {
-            labels: labels,
-            datasets: [
-              {
-                label: "Happy",
-                data: Array(6).fill(null),
-                borderColor: "rgb(244, 114, 182)",
-                tension: 0.4,
-                fill: false,
-              },
-              {
-                label: "Calm",
-                data: Array(6).fill(null),
-                borderColor: "rgb(167, 139, 250)",
-                tension: 0.4,
-                fill: false,
-              },
-              {
-                label: "Active",
-                data: Array(6).fill(null),
-                borderColor: "rgb(96, 165, 250)",
-                tension: 0.4,
-                fill: false,
-              },
-            ],
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-              legend: {
-                display: false,
-              },
-            },
-            scales: {
-              y: {
-                beginAtZero: true,
-                max: 100,
-                ticks: {
-                  callback: (value) => value + "%",
-                },
-              },
-            },
-          },
-        })
-      }
-    }
-    
-    return () => {
-      if (chartInstance.current) {
-        chartInstance.current.destroy()
-        chartInstance.current = null
-      }
-    }
+    setCurrentTime(new Date().toLocaleTimeString())
   }, [])
 
-  // Set up video streaming and AI processing
+  // Initialize webcam when recording starts
   useEffect(() => {
-    let animationFrame
-    let processingInterval
-    
-    const startVideoStream = async () => {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ 
-          video: { facingMode: 'user' } 
-        })
-        
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream
-          await videoRef.current.play()
-        }
-        
-        // Set up processing interval to analyze frames
-        processingInterval = setInterval(processVideoFrame, 2000) // Process every 2 seconds
-        
-        return stream
-      } catch (err) {
-        console.error('Error accessing camera:', err)
-      }
-    }
-    
-    const processVideoFrame = async () => {
-      if (!videoRef.current || !canvasRef.current || !isRecording) return
-      
-      const canvas = canvasRef.current
-      const video = videoRef.current
-      const context = canvas.getContext('2d')
-      
-      // Set canvas dimensions to match video
-      canvas.width = video.videoWidth
-      canvas.height = video.videoHeight
-      
-      // Draw current video frame to canvas
-      context.drawImage(video, 0, 0, canvas.width, canvas.height)
-      
-      // Get image data from canvas
-      const imageData = canvas.toDataURL('image/jpeg')
-      
-      // Send to AI service for analysis
-      const result = await emotionRecognitionService.analyzeFrame(imageData)
-      
-      // Update emotion data state with new readings
-      setEmotionData(prev => ({
-        happy: [...prev.happy.slice(-5), result.happy],
-        calm: [...prev.calm.slice(-5), result.calm],
-        active: [...prev.active.slice(-5), result.active]
-      }))
-      
-      // Update face heatmap data
-      setFaceData(result.faceData)
-      
-      // Update current time
-      setCurrentTime(new Date())
-    }
-    
-    const updateChart = () => {
-      if (chartInstance.current && emotionData.happy.length > 0) {
-        // Update time labels
-        const labels = Array(6).fill().map((_, i) => {
-          const d = new Date(currentTime)
-          d.setMinutes(d.getMinutes() - (5-i))
-          return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-        })
-        
-        chartInstance.current.data.labels = labels
-        
-        // Update emotion data
-        chartInstance.current.data.datasets[0].data = emotionData.happy.length < 6 
-          ? [...Array(6 - emotionData.happy.length).fill(null), ...emotionData.happy]
-          : emotionData.happy
-          
-        chartInstance.current.data.datasets[1].data = emotionData.calm.length < 6
-          ? [...Array(6 - emotionData.calm.length).fill(null), ...emotionData.calm]
-          : emotionData.calm
-          
-        chartInstance.current.data.datasets[2].data = emotionData.active.length < 6
-          ? [...Array(6 - emotionData.active.length).fill(null), ...emotionData.active]
-          : emotionData.active
-          
-        chartInstance.current.update()
-      }
-      
-      // Update heatmap visualization
-      updateHeatmap()
-      
-      animationFrame = requestAnimationFrame(updateChart)
-    }
-    
-    const updateHeatmap = () => {
-      if (!heatmapRef.current || !faceData) return
-      
-      const canvas = heatmapRef.current
-      const ctx = canvas.getContext('2d')
-      
-      // Clear previous drawing
-      ctx.clearRect(0, 0, canvas.width, canvas.height)
-      
-      // Draw face outline
-      ctx.beginPath()
-      ctx.arc(canvas.width/2, canvas.height/2, canvas.width/4, 0, Math.PI * 2)
-      ctx.strokeStyle = '#d1d5db'
-      ctx.lineWidth = 2
-      ctx.stroke()
-      
-      // Draw eyes with intensity
-      const leftEyeIntensity = faceData.eyes.left.intensity
-      const rightEyeIntensity = faceData.eyes.right.intensity
-      const mouthIntensity = faceData.mouth.intensity
-      
-      // Left eye
-      const leftEyeGradient = ctx.createRadialGradient(
-        canvas.width * faceData.eyes.left.x, 
-        canvas.height * faceData.eyes.left.y,
-        0,
-        canvas.width * faceData.eyes.left.x, 
-        canvas.height * faceData.eyes.left.y,
-        canvas.width * 0.08
-      )
-      leftEyeGradient.addColorStop(0, `rgba(244, 114, 182, ${leftEyeIntensity})`)
-      leftEyeGradient.addColorStop(1, 'rgba(244, 114, 182, 0)')
-      
-      ctx.beginPath()
-      ctx.arc(
-        canvas.width * faceData.eyes.left.x, 
-        canvas.height * faceData.eyes.left.y, 
-        canvas.width * 0.08, 
-        0, 
-        Math.PI * 2
-      )
-      ctx.fillStyle = leftEyeGradient
-      ctx.fill()
-      
-      // Right eye
-      const rightEyeGradient = ctx.createRadialGradient(
-        canvas.width * faceData.eyes.right.x, 
-        canvas.height * faceData.eyes.right.y,
-        0,
-        canvas.width * faceData.eyes.right.x, 
-        canvas.height * faceData.eyes.right.y,
-        canvas.width * 0.08
-      )
-      rightEyeGradient.addColorStop(0, `rgba(244, 114, 182, ${rightEyeIntensity})`)
-      rightEyeGradient.addColorStop(1, 'rgba(244, 114, 182, 0)')
-      
-      ctx.beginPath()
-      ctx.arc(
-        canvas.width * faceData.eyes.right.x, 
-        canvas.height * faceData.eyes.right.y, 
-        canvas.width * 0.08, 
-        0, 
-        Math.PI * 2
-      )
-      ctx.fillStyle = rightEyeGradient
-      ctx.fill()
-      
-      // Mouth
-      const mouthGradient = ctx.createRadialGradient(
-        canvas.width * faceData.mouth.x, 
-        canvas.height * faceData.mouth.y,
-        0,
-        canvas.width * faceData.mouth.x, 
-        canvas.height * faceData.mouth.y,
-        canvas.width * faceData.mouth.width
-      )
-      mouthGradient.addColorStop(0, `rgba(167, 139, 250, ${mouthIntensity})`)
-      mouthGradient.addColorStop(1, 'rgba(167, 139, 250, 0)')
-      
-      ctx.beginPath()
-      ctx.ellipse(
-        canvas.width * faceData.mouth.x, 
-        canvas.height * faceData.mouth.y, 
-        canvas.width * faceData.mouth.width, 
-        canvas.width * faceData.mouth.width / 2, 
-        0, 
-        0, 
-        Math.PI * 2
-      )
-      ctx.fillStyle = mouthGradient
-      ctx.fill()
-    }
-    
     if (isRecording) {
-      startVideoStream().then(() => {
-        animationFrame = requestAnimationFrame(updateChart)
-      })
+      initializeWebcam()
+    } else {
+      // Cleanup webcam when stopping recording
+      if (stream) {
+        stream.getTracks().forEach((track) => track.stop())
+        setStream(null)
+        setCameraReady(false)
+      }
     }
-    
+
     return () => {
-      if (videoRef.current && videoRef.current.srcObject) {
-        const tracks = videoRef.current.srcObject.getTracks()
-        tracks.forEach(track => track.stop())
+      if (stream) {
+        stream.getTracks().forEach((track) => track.stop())
       }
-      
-      if (animationFrame) {
-        cancelAnimationFrame(animationFrame)
+    }
+  }, [isRecording])
+
+  const initializeWebcam = async () => {
+    try {
+      const mediaStream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "user" },
+      })
+      setStream(mediaStream)
+
+      if (videoRef.current) {
+        videoRef.current.srcObject = mediaStream
+        videoRef.current.onloadedmetadata = () => {
+          setCameraReady(true)
+        }
       }
-      
+    } catch (err) {
+      setErrorMessage("Unable to access camera. Please check permissions and try again.")
+      setIsRecording(false)
+    }
+  }
+
+  // Process video frames when camera is ready
+  useEffect(() => {
+    let processingInterval
+
+    if (isCameraReady && isRecording) {
+      processingInterval = setInterval(processVideoFrame, 1000) // Process every second
+    }
+
+    return () => {
       if (processingInterval) {
         clearInterval(processingInterval)
       }
     }
-  }, [isRecording, emotionData, currentTime, faceData])
+  }, [isCameraReady, isRecording])
+
+  const processVideoFrame = async () => {
+    if (!videoRef.current || !canvasRef.current) return
+
+    const video = videoRef.current
+    const canvas = canvasRef.current
+
+    // Set canvas dimensions to match video
+    canvas.width = video.videoWidth
+    canvas.height = video.videoHeight
+
+    // Draw the video frame to the canvas
+    const ctx = canvas.getContext("2d")
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
+
+    // Convert canvas to blob
+    canvas.toBlob(
+      async (blob) => {
+        try {
+          const formData = new FormData()
+          formData.append("image", blob)
+
+          const response = await axios.post(`${mainURL}/predict`, formData, {
+            headers: { "Content-Type": "multipart/form-data" },
+          })
+
+          setCurrentEmotion(response.data.results[0]?.emotion || "")
+          setEmotionProbability(response.data.results[0]?.probability || 0)
+        } catch (error) {
+          setErrorMessage(error.response?.data.error || "An error occurred during analysis.")
+          setIsRecording(false)
+        }
+      },
+      "image/jpeg",
+      0.95
+    )
+  }
 
   const toggleRecording = () => {
     setIsRecording(prev => !prev)
+    setErrorMessage("")
+  }
+
+  // Get the latest emotion values
+  const latestEmotions = {
+    happy: emotionData.happy.length > 0 ? emotionData.happy[emotionData.happy.length - 1] : 0,
+    calm: emotionData.calm.length > 0 ? emotionData.calm[emotionData.calm.length - 1] : 0,
+    active: emotionData.active.length > 0 ? emotionData.active[emotionData.active.length - 1] : 0,
   }
 
   return (
-    <section ref={ref} id="visualization" className="py-20 bg-neutral-100">
+    <section ref={ref} className="py-20 bg-neutral-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16 animate__animated animate__fadeIn">
-          <h2 className="text-4xl font-bold text-neutral-900 mb-4">Dynamic Emotion Recognition</h2>
+          <h2 className="text-4xl font-bold text-neutral-900 mb-4">Live Emotion Analysis of your Child</h2>
           <p className="text-lg text-neutral-600 mb-6">Real-time AI analysis of your baby's emotional state</p>
-          
-          <button 
+
+          <button
             onClick={toggleRecording}
-            className={`px-6 py-3 rounded-lg font-medium transition-colors ${
-              isRecording 
-                ? 'bg-red-500 hover:bg-red-600 text-white' 
-                : 'bg-blue-500 hover:bg-blue-600 text-white'
-            }`}
+            className={`bg-gradient-to-r ${
+              isRecording
+                ? "from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700"
+                : "from-pink-400 to-purple-500 hover:from-pink-500 hover:to-purple-600"
+            } text-white font-semibold px-8 py-3 rounded-full transform transition hover:scale-105 animate__animated animate__pulse animate__infinite`}
           >
-            {isRecording ? 'Stop Analysis' : 'Start Analysis'}
+            {isRecording ? "Stop Analysis" : "Start Analysis"}
           </button>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className="grid md:grid-cols-2 gap-8">
           {/* Video Feed */}
           <div className="bg-white p-6 rounded-2xl shadow-lg animate__animated animate__fadeInLeft">
             <h3 className="text-xl font-semibold mb-4 text-black">Live Feed</h3>
             <div className="relative aspect-video bg-neutral-900 rounded-lg overflow-hidden">
               <video 
                 ref={videoRef} 
-                className="absolute inset-0 w-full h-full object-cover"
-                muted
-                playsInline
+                className="absolute inset-0 w-full h-full object-cover" 
+                autoPlay 
+                playsInline 
+                muted 
               />
               <canvas ref={canvasRef} className="hidden" />
-              
+
               {!isRecording && (
                 <div className="absolute inset-0 flex items-center justify-center">
                   <p className="text-white text-sm bg-black bg-opacity-50 p-2 rounded">
@@ -362,114 +243,134 @@ export default function DynamicVisualization({ ref }) {
                 </div>
               )}
             </div>
-            
+
+            {errorMessage && (
+              <div className="mt-4 p-3 bg-red-50 text-red-700 rounded-lg">
+                {errorMessage}
+              </div>
+            )}
+
             <div className="mt-4">
               <div className="flex justify-between text-sm text-neutral-600">
-                <span>Status: {isRecording ? 'Analyzing...' : 'Ready'}</span>
-                <span>{currentTime.toLocaleTimeString()}</span>
+                <span>Status: {isRecording ? "Analyzing..." : "Ready"}</span>
+                <span>{currentTime ?? ""}</span>
               </div>
             </div>
           </div>
 
-          {/* Emotion Timeline Chart */}
-          <div className="bg-white p-6 rounded-2xl shadow-lg">
-            <h3 className="text-xl font-semibold mb-4 text-black">Emotion Timeline</h3>
-            <div className="relative h-64">
-              <canvas ref={chartRef} className="w-full h-full"></canvas>
-            </div>
-            <div className="mt-4 flex justify-center gap-4">
-              <span className="flex items-center text-sm">
-                <span className="w-3 h-3 bg-pink-400 rounded-full mr-2"></span>
-                Happy
-              </span>
-              <span className="flex items-center text-sm">
-                <span className="w-3 h-3 bg-purple-400 rounded-full mr-2"></span>
-                Calm
-              </span>
-              <span className="flex items-center text-sm">
-                <span className="w-3 h-3 bg-blue-400 rounded-full mr-2"></span>
-                Active
-              </span>
-            </div>
-          </div>
-
-          {/* Emotion Heatmap */}
-          <div className="bg-white p-6 rounded-2xl shadow-lg animate__animated animate__fadeInRight">
-            <h3 className="text-xl font-semibold mb-4 text-black">Emotion Heatmap</h3>
-            <div className="relative h-64 bg-neutral-50 rounded-lg flex items-center justify-center">
-              <canvas 
-                ref={heatmapRef} 
-                className="w-full h-full"
-                width="300"
-                height="300"
-              />
-              
-              {!faceData && (
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <p className="text-neutral-400 text-sm">
-                    {isRecording ? 'Waiting for data...' : 'Start analysis to see heatmap'}
-                  </p>
+          {/* Emotion Analysis */}
+          <div className="bg-white p-6 rounded-2xl shadow-lg animate__animated animate__fadeIn">
+            <h3 className="text-xl font-semibold mb-4 text-black">Current Emotion</h3>
+            {isRecording ? (
+              <div className="space-y-4">
+                <div className="text-2xl font-bold text-purple-600">
+                  {currentEmotion ? currentEmotion.charAt(0).toUpperCase() + currentEmotion.slice(1) : 'Analyzing...'}
                 </div>
-              )}
-            </div>
-            
-            <div className="mt-4">
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-neutral-600">Low</span>
-                <div className="h-2 w-48 bg-gradient-to-r from-neutral-200 via-pink-400 to-purple-500 rounded-full"></div>
-                <span className="text-sm text-neutral-600">High</span>
+                {currentEmotion && (
+                  <div className="w-full bg-neutral-100 rounded-full h-2.5">
+                    <div
+                      className="bg-purple-500 h-2.5 rounded-full transition-all duration-500"
+                      style={{ width: `${emotionProbability}%` }}
+                    />
+                  </div>
+                )}
               </div>
-            </div>
+            ) : (
+              <div className="text-neutral-500">
+                Start analysis to see real-time emotion detection
+              </div>
+            )}
           </div>
         </div>
-        
-        {/* Historical Data Section */}
-        <div className="mt-16 bg-white p-8 rounded-2xl shadow-lg animate__animated animate__fadeIn">
+
+        {/* Suggestions Section */}
+        <div className="mt-5 bg-white p-8 rounded-2xl shadow-lg animate__animated animate__fadeIn">
+          <h3 className="text-2xl font-semibold mb-6 text-black">Personalized Suggestions</h3>
+
+          {isRecording && suggestions.length > 0 ? (
+            <div className="space-y-4">
+              {suggestions.map((suggestion, index) => (
+                <div
+                  key={index}
+                  className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border border-pink-100 animate__animated animate__fadeIn"
+                >
+                  <p className="text-neutral-700">{suggestion}</p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="p-6 bg-neutral-50 rounded-lg text-center">
+              <p className="text-neutral-500">
+                {isRecording
+                  ? "Analyzing your baby's emotions to generate personalized suggestions..."
+                  : "Start the analysis to receive personalized suggestions based on your baby's emotional state."}
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Emotional Insights Section */}
+        <div className="mt-5 bg-white p-8 rounded-2xl shadow-lg animate__animated animate__fadeIn">
           <h3 className="text-2xl font-semibold mb-6 text-black">Emotional Insights</h3>
-          
+
           <div className="grid md:grid-cols-3 gap-6">
             <div className="p-4 bg-pink-50 rounded-lg border border-pink-100">
               <h4 className="font-medium text-pink-700 mb-2">Happiness Analysis</h4>
+              <div className="w-full bg-gray-200 rounded-full h-2.5 mb-4">
+                <div
+                  className="bg-pink-500 h-2.5 rounded-full transition-all duration-500"
+                  style={{ width: `${latestEmotions.happy}%` }}
+                ></div>
+              </div>
               <p className="text-neutral-700 text-sm">
-                {emotionData.happy.length > 0 
-                  ? `Current happiness level: ${emotionData.happy[emotionData.happy.length-1]}%. ${
-                      emotionData.happy[emotionData.happy.length-1] > 70 
-                        ? 'Your baby appears very happy!'
-                        : emotionData.happy[emotionData.happy.length-1] > 50
-                          ? 'Your baby seems content.'
-                          : 'Your baby may need some attention.'
-                    }`
-                  : 'Start analysis to see happiness insights.'}
+                {emotionData.happy.length > 0
+                  ? `Current happiness level: ${latestEmotions.happy}%. ${latestEmotions.happy > 70
+                    ? "Your baby appears very happy!"
+                    : latestEmotions.happy > 50
+                      ? "Your baby seems content."
+                      : "Your baby may need some attention."
+                  }`
+                  : "Start analysis to see happiness insights."}
               </p>
             </div>
-            
+
             <div className="p-4 bg-purple-50 rounded-lg border border-purple-100">
               <h4 className="font-medium text-purple-700 mb-2">Calmness Analysis</h4>
+              <div className="w-full bg-gray-200 rounded-full h-2.5 mb-4">
+                <div
+                  className="bg-purple-500 h-2.5 rounded-full transition-all duration-500"
+                  style={{ width: `${latestEmotions.calm}%` }}
+                ></div>
+              </div>
               <p className="text-neutral-700 text-sm">
-                {emotionData.calm.length > 0 
-                  ? `Current calmness level: ${emotionData.calm[emotionData.calm.length-1]}%. ${
-                      emotionData.calm[emotionData.calm.length-1] > 70 
-                        ? 'Your baby is very relaxed.'
-                        : emotionData.calm[emotionData.calm.length-1] > 50
-                          ? 'Your baby is moderately calm.'
-                          : 'Your baby may be experiencing some stress.'
-                    }`
-                  : 'Start analysis to see calmness insights.'}
+                {emotionData.calm.length > 0
+                  ? `Current calmness level: ${latestEmotions.calm}%. ${latestEmotions.calm > 70
+                    ? "Your baby is very relaxed."
+                    : latestEmotions.calm > 50
+                      ? "Your baby is moderately calm."
+                      : "Your baby may be experiencing some stress."
+                  }`
+                  : "Start analysis to see calmness insights."}
               </p>
             </div>
-            
+
             <div className="p-4 bg-blue-50 rounded-lg border border-blue-100">
               <h4 className="font-medium text-blue-700 mb-2">Activity Analysis</h4>
+              <div className="w-full bg-gray-200 rounded-full h-2.5 mb-4">
+                <div
+                  className="bg-blue-500 h-2.5 rounded-full transition-all duration-500"
+                  style={{ width: `${latestEmotions.active}%` }}
+                ></div>
+              </div>
               <p className="text-neutral-700 text-sm">
-                {emotionData.active.length > 0 
-                  ? `Current activity level: ${emotionData.active[emotionData.active.length-1]}%. ${
-                      emotionData.active[emotionData.active.length-1] > 70 
-                        ? 'Your baby is very active and engaged.'
-                        : emotionData.active[emotionData.active.length-1] > 50
-                          ? 'Your baby shows moderate activity.'
-                          : 'Your baby appears relatively inactive right now.'
-                    }`
-                  : 'Start analysis to see activity insights.'}
+                {emotionData.active.length > 0
+                  ? `Current activity level: ${latestEmotions.active}%. ${latestEmotions.active > 70
+                    ? "Your baby is very active and engaged."
+                    : latestEmotions.active > 50
+                      ? "Your baby shows moderate activity."
+                      : "Your baby appears relatively inactive right now."
+                  }`
+                  : "Start analysis to see activity insights."}
               </p>
             </div>
           </div>
@@ -478,3 +379,4 @@ export default function DynamicVisualization({ ref }) {
     </section>
   )
 }
+

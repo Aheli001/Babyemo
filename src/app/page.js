@@ -15,7 +15,7 @@ export default function Home() {
     features: useRef(null),
     demo: useRef(null),
     usecases: useRef(null),
-    visualization: useRef(null),
+    analysis: useRef(null),
     contact: useRef(null),
   };
   return (
@@ -24,9 +24,9 @@ export default function Home() {
       <main id="main-content" className="flex-1 relative">
         <Hero sectionRefs={sectionRefs}/>
         <Features ref={sectionRefs.features}/>
-        <Demo ref={sectionRefs.demo}/>
+        <Demo ref={sectionRefs}/>
         <UseCases ref={sectionRefs.usecases}/>
-        <Visualization ref={sectionRefs.visualization}/>
+        <Visualization ref={sectionRefs.analysis}/>
         <Contact ref={sectionRefs.contact}/>
       </main>
       <Footer />
