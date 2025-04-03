@@ -127,10 +127,10 @@ export default function Demo({ ref }) {
 
   const emotions = {
     happy: { image: happy, color: "pink-500", label: "Happiness" },
-    neutral: { image: neutral, color: "purple-500", label: "Calmness" },
+    neutral: { image: neutral, color: "purple-500", label: "Neutral" },
     surprise: { image: surprised, color: "blue-500", label: "Alertness" },
-    sad: { image: sad, color: "blue-400", label: "Sadness" },
-    fear: { image: fear, color: "indigo-400", label: "Fear" },
+    sad: { image: sad, color: "blue-500", label: "Sadness" },
+    fear: { image: fear, color: "pink-500", label: "Fear" },
     angry: { image: angry, color: "red-500", label: "Anger" },
     disgust: { image: disgust, color: "green-500", label: "Disgust" },
   }
@@ -162,7 +162,9 @@ export default function Demo({ ref }) {
 
       console.log(response.data);
       setCurrentEmotion(response.data.results[0]?.emotion || "")
+      console.log("Emotion is",response.data.results[0]?.emotion || "")
       setValue(response.data.results[0]?.probability || 0)
+      console.log("Value is ",response.data.results[0]?.probability || 0)
       setIsLoading(false)
       setPreview(null)
       setFile(null)
@@ -495,7 +497,7 @@ export default function Demo({ ref }) {
                 </div>
 
                 <h4 className={`text-xl font-bold text-${emotions[currentEmotion]?.color} mb-2`}>
-                  {emotions[currentEmotion]?.label}
+                  {emotions[currentEmotion]?.label || "Unknown Emotion"}
                 </h4>
 
                 <div className="w-full bg-neutral-100 rounded-full h-2.5 mb-6">
@@ -514,7 +516,7 @@ export default function Demo({ ref }) {
         </div>
         <div className="flex justify-center">
           <button className="flex items-center gap-2 bg-gradient-to-r from-pink-400 to-purple-500 hover:from-pink-500 hover:to-purple-600 text-white font-semibold px-8 py-3 rounded-full transform transition hover:scale-105 animate__animated animate__pulse animate__infinite"
-          onClick={() => ref.visualization.current?.scrollIntoView({ behavior: "smooth" })}
+          onClick={() => ref.analysis.current?.scrollIntoView({ behavior: "smooth" })}
         >
           <Activity className="w-4 h-4" />
             Live Analysis
