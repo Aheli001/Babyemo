@@ -127,9 +127,9 @@ export default function Demo({ ref }) {
 
   const emotions = {
     happy: { image: happy, color: "pink-500", label: "Happiness" },
-    neutral: { image: neutral, color: "purple-500", label: "Neutral" },
-    surprise: { image: surprised, color: "blue-500", label: "Alertness" },
-    sad: { image: sad, color: "blue-500", label: "Sadness" },
+    neutral: { image: neutral, color: "red-500", label: "Neutral" },
+    surprise: { image: surprised, color: "pink-500", label: "Surprise" },
+    sad: { image: sad, color: "red-500", label: "Sadness" },
     fear: { image: fear, color: "pink-500", label: "Fear" },
     angry: { image: angry, color: "red-500", label: "Anger" },
     disgust: { image: disgust, color: "green-500", label: "Disgust" },
@@ -176,6 +176,8 @@ export default function Demo({ ref }) {
       setFile(null)
     }
   }
+
+  console.log(value)
 
   return (
     <section ref={ref.demo} id="demo" className="py-12 sm:py-24 bg-gradient-to-b from-white to-neutral-50">
@@ -504,7 +506,9 @@ export default function Demo({ ref }) {
                   <div
                     className={`bg-${emotions[currentEmotion]?.color} h-2.5 rounded-full transition-all duration-500`}
                     style={{ width: `${value}%` }}
-                  ></div>
+                  >
+                    <span className="sr-only">{value}%</span>
+                  </div>
                 </div>
 
                 <div className="bg-neutral-50 p-4 rounded-xl border border-neutral-100">
