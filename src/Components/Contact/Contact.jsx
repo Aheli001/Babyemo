@@ -90,7 +90,7 @@ export default function Contact({ref}) {
                   <h3 className="text-lg font-semibold text-neutral-900">
                     Phone
                   </h3>
-                  <p className="text-neutral-600">+1 (555) 123-4567</p>
+                  <p className="text-neutral-600">+91 9876543210</p>
                 </div>
               </div>
             </div>
@@ -113,7 +113,7 @@ export default function Contact({ref}) {
                   value={formData.name}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 rounded-lg border border-neutral-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-200 transition"
+                  className="w-full px-4 py-3 rounded-lg border border-neutral-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-200 transition text-black"
                 />
               </div>
 
@@ -131,32 +131,11 @@ export default function Contact({ref}) {
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 rounded-lg border border-neutral-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-200 transition"
+                  className="w-full px-4 py-3 rounded-lg border border-neutral-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-200 transition text-black"
                 />
               </div>
 
-              <div>
-                <label
-                  htmlFor="subject"
-                  className="block text-sm font-medium text-neutral-700 mb-2"
-                >
-                  Subject
-                </label>
-                <select
-                  id="subject"
-                  name="subject"
-                  value={formData.subject}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-4 py-3 rounded-lg border border-neutral-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-200 transition"
-                >
-                  <option value="">Select a subject</option>
-                  <option value="support">Technical Support</option>
-                  <option value="sales">Sales Inquiry</option>
-                  <option value="partnership">Partnership</option>
-                  <option value="other">Other</option>
-                </select>
-              </div>
+              
 
               <div>
                 <label
@@ -172,7 +151,7 @@ export default function Contact({ref}) {
                   value={formData.message}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-3 rounded-lg border border-neutral-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-200 transition"
+                  className="w-full px-4 py-3 rounded-lg border border-neutral-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-200 transition text-black resize-none"
                 ></textarea>
               </div>
 

@@ -257,7 +257,7 @@ export default function Visualization({ ref }) {
               }`}
             >
               <h3 className="text-2xl font-semibold mb-6 text-black">AI Powered Suggestions</h3>
-              <div className="p-6 bg-gradient-to-br from-pink-50 to-purple-50 rounded-lg shadow-inner">
+              <div className="p-6 bg-gradient-to-br from-pink-50 to-purple-50 rounded-lg shadow-inner h-[80%]">
                 <div className="text-center">
                   <div className="inline-block px-4 py-2 bg-white rounded-full shadow-sm mb-4">
                     <span className="text-xl font-bold bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent">

@@ -160,11 +160,8 @@ export default function Demo({ ref }) {
         headers: { "Content-Type": "multipart/form-data" },
       })
 
-      console.log(response.data);
       setCurrentEmotion(response.data.results[0]?.emotion || "")
-      console.log("Emotion is",response.data.results[0]?.emotion || "")
       setValue(response.data.results[0]?.probability || 0)
-      console.log("Value is ",response.data.results[0]?.probability || 0)
       setIsLoading(false)
       setPreview(null)
       setFile(null)
@@ -176,8 +173,6 @@ export default function Demo({ ref }) {
       setFile(null)
     }
   }
-
-  console.log(value)
 
   return (
     <section ref={ref.demo} id="demo" className="py-12 sm:py-24 bg-gradient-to-b from-white to-neutral-50">
