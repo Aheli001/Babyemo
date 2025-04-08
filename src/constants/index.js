@@ -1,1 +1,1 @@
-export const mainURL = 'http://127.0.0.1:5000';
+export const mainURL = 'https://baby-emotion-recognition.onrender.com';
