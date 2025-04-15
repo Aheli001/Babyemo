@@ -270,7 +270,7 @@ export default function Visualization({ ref }) {
                 </div>
               </div>
 
-              {isRecording && (
+              {/* {isRecording && (
                 <div className="mt-6 p-4 bg-neutral-50 rounded-lg border border-neutral-200">
                   <h4 className="font-medium text-neutral-800 mb-2">Tips:</h4>
                   <ul className="text-sm text-neutral-600 space-y-2">
@@ -279,7 +279,7 @@ export default function Visualization({ ref }) {
                     <li>• Try different angles if detection is inconsistent</li>
                   </ul>
                 </div>
-              )}
+              )} */}
             </div>
           </div>
         </div>
